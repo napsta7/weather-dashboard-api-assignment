@@ -8,16 +8,29 @@ interface Coordinates {
 }
 // TODO: Define a class for the Weather object
 class Weather {
-  temperature: number;
-  wind: number;
+  city: string;
+  date: string;
+  icon: string;
+  iconDescription: string;
+  tempF: number;
+  windSpeed: number;
   humidity: number;
+
   constructor(
-    temperature: number,
-    wind: number,
+    city: string,
+    date: string,
+    icon: string,
+    iconDescription: string,
+    tempF: number,
+    windSpeed: number,
     humidity: number
   ) {
-    this.temperature = temperature;
-    this.wind = wind;
+    this.city = city;
+    this.date = date;
+    this.icon = icon;
+    this.iconDescription = iconDescription;
+    this.tempF = tempF;
+    this.windSpeed = windSpeed;
     this.humidity = humidity;
   }
 }
@@ -37,7 +50,7 @@ class WeatherService {
     try{
       this.cityName = query;
       const fetchLocationDataURL = this.buildGeocodeQuery();
-      console.log(this.cityName, fetchLocationDataURL);
+      //console.log(this.cityName, fetchLocationDataURL);
       //const response = await fetch(fetchLocationDataURL);
       const response = await fetch(fetchLocationDataURL).then(data => data.json());
 
@@ -72,7 +85,7 @@ class WeatherService {
   // TODO: Create buildWeatherQuery method
   private buildWeatherQuery(coordinates: Coordinates): string {
     const weatherQuery = `${this.baseURL}/data/2.5/weather?lat=${coordinates.lat}&lon=${coordinates.lon}&appid=${this.apiKey}`;
-    console.log(weatherQuery);
+    //console.log(weatherQuery);
     return weatherQuery;
   }
   // TODO: Create fetchAndDestructureLocationData method
@@ -106,32 +119,48 @@ class WeatherService {
   }
   // TODO: Build parseCurrentWeather method
   private parseCurrentWeather(response: any) {
-    const temperature = response.main.temp;
-    const wind = response.wind.speed;
+    //console.log(response);
+    const tempF = response.main.temp;
+    //console.log(temperature);
+    const windSpeed = response.wind.speed;
+    //console.log(wind);
     const humidity = response.main.humidity;
-    return new Weather(temperature, wind, humidity);
+    const city = response.name;
+    const date = new Date().toLocaleDateString();
+    const icon = response.weather[0].icon;
+    const iconDescription = response.weather[0].description;
+    return new Weather(city, date, icon, iconDescription, tempF, windSpeed, humidity);
   }
   // TODO: Complete buildForecastArray method
   private buildForecastArray(currentWeather: Weather, weatherData: any[]) {
     const forecastArray: Weather[] = [currentWeather];
-    for (const day of weatherData){
-      const temperature = day.main.temp;
-      const wind = day.wind.speed;
-      const humidity = day.main.humidity;
-      const weatherForecast = new Weather(temperature, wind, humidity);
-      forecastArray.push(weatherForecast);
+    //console.log(weatherData);
+    for (const day of weatherData) {
+      //console.log(day);
+        const tempF = day.main.temp;
+        const windSpeed = day.wind.speed;
+        const humidity = day.main.humidity;
+        const date = day.dt_txt;
+        const icon = day.weather[0].icon;
+        const iconDescription = day.weather[0].description;
+        //console.log('Temperature:', temperature);
+        //console.log('Wind Speed:', wind);
+        //console.log('Humidity:', humidity);
+
+        const weatherForecast = new Weather(currentWeather.city, date, icon, iconDescription, tempF, windSpeed, humidity);
+        forecastArray.push(weatherForecast);
     }
     return forecastArray;
-  }
+}
   // TODO: Complete getWeatherForCity method
   async getWeatherForCity(city: string) {
     this.cityName = city;
     const coordinates = await this.fetchAndDestructureLocationData();
-    console.log(coordinates);
+    //console.log(coordinates);
     if (coordinates) {
         const currentWeather = await this.fetchWeatherData(coordinates);
         if (currentWeather) {
-          console.log(currentWeather);
+          //console.log(currentWeather);
           const getWeatherURL = `${this.baseURL}/data/2.5/forecast?lat=${coordinates.lat}&lon=${coordinates.lon}&cnt=5&appid=${this.apiKey}`;
           const weatherResponse = await fetch(getWeatherURL);
           if (!weatherResponse.ok) {
@@ -140,6 +169,8 @@ class WeatherService {
           }
           const weatherData = await weatherResponse.json();
           const forecastArray = this.buildForecastArray(currentWeather, weatherData.list);
+          //console.log(currentWeather);
+          console.log(forecastArray);
           return forecastArray;
       } else {
           console.error('Current weather data is not available');
