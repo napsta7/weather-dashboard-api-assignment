@@ -37,12 +37,20 @@ class WeatherService {
     try{
       this.cityName = query;
       const fetchLocationDataURL = this.buildGeocodeQuery();
+      console.log(this.cityName, fetchLocationDataURL);
       const response = await fetch(fetchLocationDataURL);
-      if (!response.ok) {
-        console.error('Error fetching location data:', response.statusText);
-        return null;
-      }
-      const locationData = await response.json();
+      // const response = await fetch(fetchLocationDataURL).then(data => data.json());
+
+      // if (!response.ok) {
+      //   console.error('Error fetching location data:', response.statusText);
+      //   return null;
+      // }
+      const jsonData = await response.json();
+      const { lat, lon } = jsonData;
+      const locationData: Coordinates = { 
+        lat,
+        lon
+      };
       return locationData;
     }
     catch(error){
@@ -55,8 +63,9 @@ class WeatherService {
     if (!locationData) {
       console.error('No location data found');
     }
-    const { lat, lon } = locationData
-    return { lat, lon };
+    const { lat, lon } = locationData;
+    const coordinates: Coordinates = { lat, lon };
+    return coordinates;
   }
   // TODO: Create buildGeocodeQuery method
   private buildGeocodeQuery(): string {
@@ -70,15 +79,17 @@ class WeatherService {
   }
   // TODO: Create fetchAndDestructureLocationData method
   private async fetchAndDestructureLocationData() {
-    try{
+    //try{
       const locationData = await this.fetchLocationData(this.cityName);
+      console.log('should be coordinates', typeof locationData , locationData);
+      // ts-ignore
       const destructureData = this.destructureLocationData(locationData);
       return destructureData;
-    }
-    catch(error){
-      console.error('Error fetching and destructuring location data');
-      return null;
-    }
+    //}
+    // catch(error){
+    //   console.error('Error fetching and destructuring location data');
+    //   throw new Error('Error fetching and destructuring location data');
+    // }
   }
   // TODO: Create fetchWeatherData method
   private async fetchWeatherData(coordinates: Coordinates) {
@@ -119,10 +130,12 @@ class WeatherService {
   async getWeatherForCity(city: string) {
     this.cityName = city;
     const coordinates = await this.fetchAndDestructureLocationData();
+    console.log(coordinates);
     if (coordinates) {
         const currentWeather = await this.fetchWeatherData(coordinates);
         if (currentWeather) {
-          const getWeatherURL = `${this.baseURL}/data/2.5/forecast/daily?lat=${coordinates.lat}&lon=${coordinates.lon}&cnt=5&appid=${this.apiKey}`;
+          console.log(currentWeather);
+          const getWeatherURL = `${this.baseURL}/data/2.5/forecast?lat=${coordinates.lat}&lon=${coordinates.lon}&cnt=5&appid=${this.apiKey}`;
           const weatherResponse = await fetch(getWeatherURL);
           if (!weatherResponse.ok) {
               console.error('Error fetching forecast data:', weatherResponse.statusText);
