@@ -17,7 +17,7 @@ class HistoryService {
   // TODO: Define a read method that reads from the searchHistory.json file
   private async read() {
     try{
-      const data = await fs.readFile('Develop/server/searchHistory.json', 'utf-8');
+      const data = await fs.readFile('db/db.json', 'utf-8');
       return JSON.parse(data);
     }
     catch(error){
@@ -28,7 +28,7 @@ class HistoryService {
   private async write(cities: City[]) {
     try{
       const data = JSON.stringify(cities, null, 2);
-      await fs.writeFile('Develop/server/searchHistory.json', data);
+      await fs.writeFile('db/searchHistory.json', data);
     }
     catch(error){
       console.error(error);

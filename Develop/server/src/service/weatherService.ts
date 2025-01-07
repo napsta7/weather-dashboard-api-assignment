@@ -38,24 +38,21 @@ class WeatherService {
       this.cityName = query;
       const fetchLocationDataURL = this.buildGeocodeQuery();
       console.log(this.cityName, fetchLocationDataURL);
-      const response = await fetch(fetchLocationDataURL);
-      // const response = await fetch(fetchLocationDataURL).then(data => data.json());
+      //const response = await fetch(fetchLocationDataURL);
+      const response = await fetch(fetchLocationDataURL).then(data => data.json());
 
       // if (!response.ok) {
       //   console.error('Error fetching location data:', response.statusText);
       //   return null;
       // }
-      const jsonData = await response.json();
-      const { lat, lon } = jsonData;
-      const locationData: Coordinates = { 
-        lat,
-        lon
-      };
-      return locationData;
+      //const jsonData = await response.json();
+
+      const locationData: Coordinates[] = response;
+      return locationData[0];
     }
     catch(error){
       console.error('Error fetching location data.');
-      return error;
+      throw error;
     }
   }
   // TODO: Create destructureLocationData method
@@ -75,14 +72,14 @@ class WeatherService {
   // TODO: Create buildWeatherQuery method
   private buildWeatherQuery(coordinates: Coordinates): string {
     const weatherQuery = `${this.baseURL}/data/2.5/weather?lat=${coordinates.lat}&lon=${coordinates.lon}&appid=${this.apiKey}`;
+    console.log(weatherQuery);
     return weatherQuery;
   }
   // TODO: Create fetchAndDestructureLocationData method
   private async fetchAndDestructureLocationData() {
     //try{
       const locationData = await this.fetchLocationData(this.cityName);
-      console.log('should be coordinates', typeof locationData , locationData);
-      // ts-ignore
+    
       const destructureData = this.destructureLocationData(locationData);
       return destructureData;
     //}
