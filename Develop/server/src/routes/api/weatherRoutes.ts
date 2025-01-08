@@ -7,21 +7,20 @@ import WeatherService from '../../service/weatherService.js';
 // POST Request with city name to retrieve weather data
 router.post('/', async (req: Request, res: Response) => {
   try {
-    // Get the city name from the request body
+    //🟦This gets cityName from the request body
     const { cityName } = req.body;
 
-    // Check if city is provided
     if (!cityName) {
       return res.status(400).json({ error: 'City name is required' });
     }
 
-    // Get weather data from city name
-    const weatherData = await WeatherService.getWeatherForCity(cityName); // Assuming this method takes a city name as a parameter
+    //🟦This gets the weatherData from the getWeatherForCity method given a cityName
+    const weatherData = await WeatherService.getWeatherForCity(cityName);
 
-    // Save city to search history
-    await HistoryService.addCity(cityName); // Use the addCity method to save the city
+    //🟦This adds a city to the search history using the addCity method in historyService.ts
+    await HistoryService.addCity(cityName);
 
-    // Send the weather data back to the client
+    //🟦Sends back the weatherData
     return res.status(200).json(weatherData);
   } catch (error) {
     console.error(error);
@@ -32,8 +31,8 @@ router.post('/', async (req: Request, res: Response) => {
 // TODO: GET search history
 router.get('/history', async (_req, res) => {
   try{
-    const getHistory = await HistoryService.getCities();
-    res.status(200).json(getHistory);
+    const getHistory = await HistoryService.getCities();//🟦Uses getCities to get all cities from the search history
+    res.status(200).json(getHistory); //🟦Sends back the history
   }
   catch (error) {
     console.error('Error:', error);
@@ -45,7 +44,7 @@ router.get('/history', async (_req, res) => {
 router.delete('/history/:id', async (req, res) => {
   const { id } = req.params;
   try {
-      await HistoryService.removeCity(id);
+      await HistoryService.removeCity(id); //🟦Uses the removeCity method to remove a city from the search history
       res.status(200).json({ message: 'City removed from history' });
   } catch (error) {
       console.error('Error:', error);
