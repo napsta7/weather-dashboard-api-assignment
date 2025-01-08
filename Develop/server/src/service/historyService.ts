@@ -22,6 +22,7 @@ class HistoryService {
     }
     catch(error){
       console.error(error);
+      throw new Error;
     }
   }
   // TODO: Define a write method that writes the updated cities array to the searchHistory.json file
@@ -32,6 +33,7 @@ class HistoryService {
     }
     catch(error){
       console.error(error);
+      throw new Error;
     }
   }
   // TODO: Define a getCities method that reads the cities from the searchHistory.json file and returns them as an array of City objects
@@ -41,6 +43,7 @@ class HistoryService {
       return data.map((cityData: any) => new City(cityData.name));
     } catch (error) {
       console.error(error);
+      return [];
     }
   }
   // TODO Define an addCity method that adds a city to the searchHistory.json file

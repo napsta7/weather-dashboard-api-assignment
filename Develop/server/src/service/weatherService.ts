@@ -134,22 +134,30 @@ class WeatherService {
   // TODO: Complete buildForecastArray method
   private buildForecastArray(currentWeather: Weather, weatherData: any[]) {
     const forecastArray: Weather[] = [currentWeather];
-    //console.log(weatherData);
-    for (const day of weatherData) {
-      //console.log(day);
-        const tempF = day.main.temp;
-        const windSpeed = day.wind.speed;
-        const humidity = day.main.humidity;
-        const date = day.dt_txt;
-        const icon = day.weather[0].icon;
-        const iconDescription = day.weather[0].description;
-        //console.log('Temperature:', temperature);
-        //console.log('Wind Speed:', wind);
-        //console.log('Humidity:', humidity);
+    const dailyForecasts: { [key: string]: Weather } = {};
 
-        const weatherForecast = new Weather(currentWeather.city, date, icon, iconDescription, tempF, windSpeed, humidity);
-        forecastArray.push(weatherForecast);
+    for (const day of weatherData) {
+        const date = day.dt_txt.split(' ')[0]; // Get the date part (YYYY-MM-DD)
+        
+        // Check if we already have a forecast for this date
+        if (!dailyForecasts[date]) {
+            const tempF = day.main.temp;
+            const windSpeed = day.wind.speed;
+            const humidity = day.main.humidity;
+            const icon = day.weather[0].icon;
+            const iconDescription = day.weather[0].description;
+
+            // Create a new Weather object for this date
+            const weatherForecast = new Weather(currentWeather.city, date, icon, iconDescription, tempF, windSpeed, humidity);
+            dailyForecasts[date] = weatherForecast; // Store it in the dailyForecasts object
+        }
     }
+
+    // Convert the dailyForecasts object to an array
+    for (const forecast of Object.values(dailyForecasts)) {
+        forecastArray.push(forecast);
+    }
+
     return forecastArray;
 }
   // TODO: Complete getWeatherForCity method
@@ -161,7 +169,7 @@ class WeatherService {
         const currentWeather = await this.fetchWeatherData(coordinates);
         if (currentWeather) {
           //console.log(currentWeather);
-          const getWeatherURL = `${this.baseURL}/data/2.5/forecast?lat=${coordinates.lat}&lon=${coordinates.lon}&cnt=5&appid=${this.apiKey}`;
+          const getWeatherURL = `${this.baseURL}/data/2.5/forecast?lat=${coordinates.lat}&lon=${coordinates.lon}&appid=${this.apiKey}`;
           const weatherResponse = await fetch(getWeatherURL);
           if (!weatherResponse.ok) {
               console.error('Error fetching forecast data:', weatherResponse.statusText);
@@ -170,7 +178,7 @@ class WeatherService {
           const weatherData = await weatherResponse.json();
           const forecastArray = this.buildForecastArray(currentWeather, weatherData.list);
           //console.log(currentWeather);
-          console.log(forecastArray);
+          //console.log(forecastArray);
           return forecastArray;
       } else {
           console.error('Current weather data is not available');
