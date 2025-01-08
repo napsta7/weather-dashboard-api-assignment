@@ -17,7 +17,7 @@ class HistoryService {
   // TODO: Define a read method that reads from the searchHistory.json file
   private async read() {
     try{
-      const data = await fs.readFile('db/db.json', 'utf-8');
+      const data = await fs.readFile('db/searchHistory.json', 'utf-8');
       return JSON.parse(data);
     }
     catch(error){
@@ -62,8 +62,9 @@ class HistoryService {
   async removeCity(id: string) {
     try {
       const cities = await this.getCities();
-      const updatedCities = cities.filter((city: City) => city.id !== id);
-      await this.write(updatedCities);
+      const index = cities.findIndex((city: City) => city.id === id);
+      cities.splice(index, 1); // Remove the city at the found index
+      await this.write(cities); // Write the updated cities array back to the file
     } catch (error) {
       console.error(error);
       throw error;
