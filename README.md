@@ -10,4 +10,4 @@ This application uses API calls to retrieve the weather and 5-day forecast for a
 Render: https://dashboard.render.com/verify-email?next=%2Fu%2Fusr-ctrle43qf0us73dggs10%2Fsettings
 
 ## Screenshot of Application:
-![Alt text](Develop\assets\screenshot.png "Screenshot of application")
+![Alt text](./Develop/assets/screenshot.png "Screenshot of application")
